@@ -1,60 +1,60 @@
-# 🛡️ DIO Agent — Segurança e Análise de Vulnerabilidades
+# 🛡️ DIO Agent — Security & Vulnerability Analysis
 
-Fork do [DIO Agent](https://github.com/digitalinnovationone/dio-agent), o mentor de estudos com IA da [DIO](https://dio.me), com foco em **segurança da informação**. Este projeto adiciona ao agente uma skill de análise de vulnerabilidades, uma base de conhecimento de segurança e um exemplo de autenticação segura em Python.
+Fork of DIO Agent, DIO's AI-powered study mentor, with a focus on information security. This project adds a vulnerability analysis skill, a security knowledge base, and a secure authentication example in Python.
 
-## 🎯 O que foi adicionado
+## 🎯 What was added
 
-| Item | Caminho | Descrição |
-| --- | --- | --- |
-| Skill de análise de vulnerabilidades | `skills/vulnerability-analysis/` | Ensina o agente a revisar código em busca de falhas de segurança, de forma defensiva e didática |
-| Base de conhecimento | `agent/knowledge/security-basics.md` | Fundamentos de segurança da informação: conceitos centrais (risco, tratamento do risco, exemplo de login), tríade CIA, princípios de segurança, boas práticas (contas e senhas, sistemas, desenvolvimento seguro, dados, pessoas, detecção e resposta), perguntas de revisão e fontes para aprofundar |
-| Autenticação segura | `agent/app.py` | Cadastro e login de usuários com senha protegida |
-| Registro da skill | `AGENTS.md` | Nova linha na tabela de skills, para o agente acioná-la sozinho |
+| Item | Path | Description |
+|---|---|---|
+| Vulnerability analysis skill | `skills/vulnerability-analysis/` | Teaches the agent to review code for security flaws, in a defensive and educational way |
+| Knowledge base | `agent/knowledge/security-basics.md` | Information security fundamentals: core concepts (risk, risk treatment, login example), the CIA triad, security principles, best practices (accounts and passwords, systems, secure development, data, people, detection and response), review questions, and further reading |
+| Secure authentication | `agent/app.py` | User registration and login with properly protected passwords |
+| Skill registration | `AGENTS.md` | New entry in the skills table, so the agent can trigger it on its own |
 
 ## 🔍 Skill: vulnerability-analysis
 
-O agente aciona esta skill quando o estudante pergunta sobre vulnerabilidades, riscos ou falhas de segurança, ou pede um *code review* de segurança.
+The agent triggers this skill when the student asks about vulnerabilities, risks, or security flaws, or requests a security code review.
 
-**Princípio:** aprender a pensar como defensor. A skill é estritamente defensiva: explica o risco de forma conceitual, sem escrever exploits nem ajudar a atacar sistemas de terceiros.
+**Principle: learn to think like a defender.** The skill is strictly defensive: it explains the risk conceptually, without writing exploits or helping attack third-party systems.
 
-**O que ela analisa, nesta ordem:**
+What it analyzes, in this order:
 
-1. Entrada do usuário que chega a consultas, comandos, caminhos de arquivo ou HTML sem tratamento
-2. Autenticação e senhas (texto puro, hash fraco, falta de limite de tentativas)
-3. Segredos fixos no código (senhas, chaves, tokens)
-4. Tratamento de erros que expõe informações sensíveis
-5. Bugs que não são de segurança, listados à parte
+1. User input that reaches queries, commands, file paths, or HTML without sanitization
+2. Authentication and passwords (plain text, weak hashing, no attempt limit)
+3. Hardcoded secrets in the code (passwords, keys, tokens)
+4. Error handling that exposes sensitive information
+5. Non-security bugs, listed separately
 
-**Formato de cada achado:** título e local, severidade, como o risco funciona, impacto, referências (CWE, OWASP Top 10 e MITRE ATT&CK) e correção.
+Each finding's format: title and location, severity, how the risk works, impact, references (CWE, OWASP Top 10, and MITRE ATT&CK), and fix.
 
-**Modos de ajuda:**
+**Help modes:**
 
-- **Diagnóstico (padrão):** lista os achados sem reescrever o código
-- **Correção:** mostra a correção com comentários explicando cada mudança
-- **Aprendizado:** guia o estudante com uma escada de dicas (conceito → direção → estratégia → pseudocódigo → comentário no código), sem entregar a resposta pronta
+- **Diagnosis (default):** lists findings without rewriting the code
+- **Fix:** shows the correction with comments explaining each change
+- **Learning:** guides the student through a hint ladder (concept → direction → strategy → pseudocode → inline comment), without giving away the full answer
 
-Ao final, o agente pede que o estudante explique com as próprias palavras por que o código antigo era vulnerável e por que o novo não é.
+At the end, the agent asks the student to explain, in their own words, why the old code was vulnerable and why the new one isn't.
 
-## 🔐 Autenticação segura (`agent/app.py`)
+## 🔐 Secure authentication (`agent/app.py`)
 
-Exemplo de login que corrige falhas comuns de segurança:
+A login example that fixes common security flaws:
 
-- **Hash de senha com sal:** PBKDF2-HMAC-SHA256 com 100.000 iterações e sal aleatório de 16 bytes (`os.urandom`), então senhas iguais geram hashes diferentes
-- **Consultas parametrizadas:** o SQLite recebe os valores separados da consulta (`?`), o que previne SQL injection
-- **Senha nunca em texto puro:** o banco guarda apenas `sal$hash`, ambos em Base64
-- **Mensagem única de falha:** usuário inexistente e senha errada retornam a mesma resposta, sem revelar se o usuário existe
-- **Conexão sempre fechada:** uso de `try/finally`
+- **Salted password hashing:** PBKDF2-HMAC-SHA256 with 100,000 iterations and a random 16-byte salt (`os.urandom`), so identical passwords produce different hashes
+- **Parameterized queries:** SQLite receives values separately from the query (`?`), which prevents SQL injection
+- **Password never stored in plain text:** the database only stores `salt$hash`, both Base64-encoded
+- **Single failure message:** a nonexistent user and a wrong password return the same response, without revealing whether the user exists
+- **Connection always closed:** using `try/finally`
 
-### Funções
+**Functions**
 
-| Função | O que faz |
-| --- | --- |
-| `registar_usuario(user, password)` | Cria o usuário, salvando a senha como `sal$hash` |
-| `auth_login(user, password)` | Valida o login e retorna `"Acess done!"` ou `"Acess denied!"` |
+| Function | What it does |
+|---|---|
+| `registar_usuario(user, password)` | Creates the user, storing the password as `salt$hash` |
+| `auth_login(user, password)` | Validates the login and returns `"Access granted!"` or `"Access denied!"` |
 
-### Exemplo de uso
+**Usage example**
 
-O código espera um banco `banco_de_dados.db` com uma tabela `usuarios` que tenha as colunas `username` e `password`:
+The code expects a `banco_de_dados.db` database with a `usuarios` table containing `username` and `password` columns:
 
 ```python
 import sqlite3
@@ -64,43 +64,41 @@ con = sqlite3.connect("banco_de_dados.db")
 con.execute("CREATE TABLE IF NOT EXISTS usuarios (username TEXT UNIQUE, password TEXT)")
 con.close()
 
-registar_usuario("ana", "senha-forte-123")
-print(auth_login("ana", "senha-forte-123"))  # Acess done!
-print(auth_login("ana", "senha-errada"))     # Acess denied!
+registar_usuario("ana", "strong-password-123")
+print(auth_login("ana", "strong-password-123"))  # Access granted!
+print(auth_login("ana", "wrong-password"))        # Access denied!
 ```
 
-Execute a partir da pasta `agent/`.
+Run it from the `agent/` folder.
 
-## 🚀 Como usar o agente
+## 🚀 How to use the agent
 
-1. Instale um harness compatível (Google Antigravity, Claude Code, Codex, OpenCode ou Hermes).
-2. Clone o projeto:
-
+1. Install a compatible harness (Google Antigravity, Claude Code, Codex, OpenCode, or Hermes).
+2. Clone the project:
    ```bash
    git clone https://github.com/GuilhermeRodr1gues/dio-agent.git
    ```
+3. Open the folder containing `AGENTS.md` in the harness.
+4. Talk to it naturally. Example prompts that trigger the new skill:
+   - "Analyze this code and tell me if it has vulnerabilities."
+   - "Is this login secure?"
+   - "How do I fix SQL injection in this snippet?"
 
-3. Abra no harness a pasta que contém o `AGENTS.md`.
-4. Converse naturalmente. Exemplos de pedidos que acionam a nova skill:
-   - "Analise este código e me diga se tem vulnerabilidades."
-   - "Esse login está seguro?"
-   - "Como corrijo SQL injection neste trecho?"
-
-## 🗂️ Estrutura (partes alteradas)
+## 🗂️ Structure (changed parts)
 
 ```
 dio-agent/
-├── AGENTS.md                         + skill vulnerability-analysis registrada
+├── AGENTS.md                         + vulnerability-analysis skill registered
 ├── agent/
-│   ├── app.py                        + autenticação segura com SQLite
+│   ├── app.py                        + secure authentication with SQLite
 │   └── knowledge/
-│       └── security-basics.md        + fundamentos de segurança
+│       └── security-basics.md        + security fundamentals
 └── skills/
     └── vulnerability-analysis/
-        ├── README.MD                 + objetivo e fluxo da skill
-        └── SKILL.md                  + instruções completas para o agente
+        ├── README.MD                 + skill goal and flow
+        └── SKILL.md                  + full instructions for the agent
 ```
 
-## 🙏 Créditos
+## 🙏 Credits
 
-Projeto original criado pela [DIO](https://dio.me): [digitalinnovationone/dio-agent](https://github.com/digitalinnovationone/dio-agent).
+Original project created by DIO: [digitalinnovationone/dio-agent](https://github.com/digitalinnovationone/dio-agent).
